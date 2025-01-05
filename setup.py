@@ -1,12 +1,22 @@
 import os
 import subprocess
 import getpass
-from selenium.webdriver.chrome.options import Options
-from webdriver_manager.chrome import ChromeDriverManager
+import json
 
 # Function to install dependencies
 def install_dependencies():
-    subprocess.check_call(["pip", "install", "selenium", "beautifulsoup4", "webdriver_manager"])
+    try:
+        subprocess.check_call(["pip", "install", "selenium", "beautifulsoup4", "webdriver_manager"])
+    except subprocess.CalledProcessError as e:
+        print(f"An error occurred while installing dependencies: {e}")
+        exit(1)
+
+# Install dependencies
+install_dependencies()
+
+# Now we can safely import the required libraries
+from selenium.webdriver.chrome.options import Options
+from webdriver_manager.chrome import ChromeDriverManager
 
 # Function to download the ChromeDriver
 def download_chromedriver():
@@ -21,9 +31,6 @@ def find_chrome_path():
     chrome_path = options.binary_location
     print(f"Chrome executable path: {chrome_path}")
     return chrome_path
-
-# Install dependencies
-install_dependencies()
 
 # Prompt user for input
 shift_page_url = input("Please enter the URL of the shift page: ").strip()
@@ -51,7 +58,6 @@ config = {
 }
 
 # Write the configuration to a file
-import json
 with open(safe_destination, 'w') as config_file:
     json.dump(config, config_file)
 
