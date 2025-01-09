@@ -1,2 +1,18 @@
-# mymcd.eu-shifts
-This program automates the extraction of shift data from a web page using Selenium. It logs in to the McDonald's employee portal, navigates to the shift schedule page, and scrapes dates and times of shifts. Data is parsed with BeautifulSoup and returned in a structured format.
+
+
+# **Shift Extractor and Google Calendar Integration**
+
+**Description:**
+This program is designed to extract employee shifts from the calendar on the [MyMcDonald's Employee Portal](https://mymcd.eu) using Selenium. The extracted data is then formatted into a structured format which is subsequently added to Google Calendar through the Google API.
+
+**Features:**
+- **Web Scraping**: Utilizes Selenium to navigate and scrape the shifts from the MyMcDonald's employee web portal.
+- **Data Structuring**: Processes and organizes the extracted shift data into a structured format suitable for further use.
+- **Google Calendar Integration**: Uses the Google Calendar API to add the structured shift data into Google Calendar, allowing for easy access and management.
+
+**Usage**:
+- Clone the repository from [GitHub](https://github.com/Nandaki/mymcd.eu-shifts).
+- Set up the required dependencies and environment as specified in the documentation.
+- Run the script to extract shifts and integrate them into Google Calendar.
+
+Feel free to tweak this description as required or share the GitHub link if you'd like me to refine it further!
