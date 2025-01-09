@@ -15,4 +15,4 @@ This program is designed to extract employee shifts from the calendar on the [My
 - Set up the required dependencies and environment as specified in the documentation.
 - Run the script to extract shifts and integrate them into Google Calendar.
 
-Feel free to tweak this description as required or share the GitHub link if you'd like me to refine it further!
+
