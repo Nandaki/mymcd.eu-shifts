@@ -44,13 +44,13 @@ password_input.send_keys(password)
 login_button.click()
 
 # Wait for the page to load
-time.sleep(2)  # Wait for 2 seconds
+time.sleep(3)  # Wait for 3 seconds
 
 # Navigate to the shifts page
 driver.get(shift_page_url)
 
 # Wait for dynamic content to load
-time.sleep(3)  # Wait for 3 seconds
+time.sleep(4)  # Wait for 4 seconds
 
 # Extract the HTML source of the page after loading
 page_source = driver.page_source
