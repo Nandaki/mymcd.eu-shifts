@@ -57,6 +57,7 @@ while not password:
 # Import the required libraries for the rest of the script 
 import pytz
 import tzlocal
+import pickle
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
