@@ -49,20 +49,18 @@ while not password:
 # Check if credentials.json exists in the script's directory
 
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    credentials_path = os.path.join(script_dir, "credentials.json")
+    credentials_path = os.path.join(script_dir, "credentialsjson")
     if not os.path.exists(credentials_path):
         print(f"Error: {credentials_path} does not exist. Please create the file with your credentials.")
         exit(1)
 
 # Import the required libraries for the rest of the script 
+import pytz
+import tzlocal
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
-from datetime import datetime, timedelta
-import os.path
-import pickle
-import pytz
-import tzlocal
+from google.oauth2.credentials import Credentials
 
 SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"]
 
@@ -71,10 +69,11 @@ SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"]
 def main():
     creds = None
 
-    if os.path.exists('token.pickle'):
-        with open('token.pickle', 'rb') as token:
-            creds = pickle.load(token)
+    # Load credentials from token.json
+    if os.path.exists('token.json'):
+        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
 
+    # If there are no valid credentials, let the user log in.
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
@@ -82,62 +81,36 @@ def main():
             flow = InstalledAppFlow.from_client_secrets_file(
                 'credentials.json', SCOPES)
             creds = flow.run_local_server(port=0)
-
-        with open('token.pickle', 'wb') as token:
-            pickle.dump(creds, token)
+        # Save the credentials for the next run
+        with open('token.json', 'w') as token:
+            token.write(creds.to_json())
 
     service = build('calendar', 'v3', credentials=creds)
 
-    # List all calendars
-    print("Fetching all calendars:")
+    # Fetch the list of calendars
     calendar_list = service.calendarList().list().execute().get('items', [])
-    
-    if not calendar_list:
-        print("No calendars found.")
-        exit(1)
-    
-    print("Please choose a calendar:")
+    print("Fetching all calendars:")
     for i, calendar in enumerate(calendar_list):
         print(f"{i + 1}. {calendar['summary']}")
-    
-    choice = input("Enter the number of the calendar you want to use: ").strip()
-    while not choice.isdigit() or int(choice) < 1 or int(choice) > len(calendar_list):
-        choice = input("Invalid choice. Please enter a valid number: ").strip()
-    
-    chosen_calendar = calendar_list[int(choice) - 1]
-    print(f"You have chosen: {chosen_calendar['summary']}")
-    print(f"{len(calendar_list) + 1}. Create a new calendar")
 
-    choice = input("Enter the number of the calendar you want to use: ").strip()
-    while not choice.isdigit() or int(choice) < 1 or int(choice) > len(calendar_list) + 1:
-        choice = input("Invalid choice. Please enter a valid number: ").strip()
-
-    if int(choice) == len(calendar_list) + 1:
-        new_calendar_name = input("Enter the name for the new calendar: ").strip()
-        while not new_calendar_name:
-            new_calendar_name = input("The calendar name cannot be blank. Please enter the name for the new calendar: ").strip()
-
-        new_calendar = {
-            'summary': new_calendar_name,
-            'timeZone': pytz.timezone('America/Los_Angeles').zone
-        }
+    choice = input("Enter the number of the calendar you want to use: ")
+    if choice == '10':
+        new_calendar_name = input("Enter the name of the new calendar: ")
         local_timezone = tzlocal.get_localzone()
         new_calendar = {
             'summary': new_calendar_name,
             'timeZone': local_timezone.zone
         }
-
         created_calendar = service.calendars().insert(body=new_calendar).execute()
         print(f"Created calendar: {created_calendar['id']}")
-        chosen_calendar = created_calendar
+        return created_calendar
     else:
         chosen_calendar = calendar_list[int(choice) - 1]
         print(f"You have chosen: {chosen_calendar['summary']}")
+        return chosen_calendar
 
-   
 if __name__ == '__main__':
     chosen_calendar = main()
-
 
 # Download WebDriver and find Chrome path
 driver_path = download_chromedriver()
