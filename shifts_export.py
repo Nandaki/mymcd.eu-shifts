@@ -4,6 +4,8 @@ import tempfile
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.options import Options
+from webdriver_manager.chrome import ChromeDriverManager
 from bs4 import BeautifulSoup
 import time
 from datetime import datetime
@@ -18,18 +20,14 @@ with open(safe_destination, 'r') as config_file:
 shift_page_url = config['shift_page_url']
 username = config['username']
 password = config['password']
-driver_path = config['driver_path']
 chrome_path = config['chrome_path']
 
-# Create Chrome service instance
-service = Service(driver_path)
-
 # Setup Chrome options
-options = webdriver.ChromeOptions()
+options = Options()
 options.binary_location = chrome_path
 
-# Initialize Chrome driver (ChromeDriver)
-driver = webdriver.Chrome(service=service, options=options)
+# Initialize Chrome driver (ChromeDriver) using webdriver_manager
+driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
 # Login using Selenium
 driver.get('https://mymcd.eu/login/')

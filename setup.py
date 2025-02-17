@@ -33,27 +33,6 @@ def find_chrome_path():
     print(f"Chrome executable path: {chrome_path}")
     return chrome_path
 
-# Prompt user for input
-shift_page_url = input("Please enter the URL of the shift page: ").strip()
-while not shift_page_url:
-    shift_page_url = input("The shift page URL cannot be blank. Please enter the URL of the shift page: ").strip()
-
-username = input("Please enter your username: ").strip()
-while not username:
-    username = input("The username cannot be blank. Please enter your username: ").strip()
-
-password = getpass.getpass("Please enter your password: ").strip()
-while not password:
-    password = getpass.getpass("The password cannot be blank. Please enter your password: ").strip()
-    
-# Check if credentials.json exists in the script's directory
-
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    credentials_path = os.path.join(script_dir, "credentialsjson")
-    if not os.path.exists(credentials_path):
-        print(f"Error: {credentials_path} does not exist. Please create the file with your credentials.")
-        exit(1)
-
 # Import the required libraries for the rest of the script 
 import pytz
 import tzlocal
@@ -63,7 +42,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 
-SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"]
+SCOPES = ["https://www.googleapis.com/auth/calendar"]
 
 
 # Function to list upcoming events on the user's calendar
@@ -94,13 +73,18 @@ def main():
     for i, calendar in enumerate(calendar_list):
         print(f"{i + 1}. {calendar['summary']}")
 
-    choice = input("Enter the number of the calendar you want to use: ")
-    if choice == '10':
+    print("0. Create a new calendar")
+    choice = input("Enter the number of the calendar you want to use: ").strip()
+
+    while not choice.isdigit() or int(choice) < 0 or int(choice) > len(calendar_list):
+        choice = input("Invalid choice. Please enter a valid number: ").strip()
+
+    if choice == '0':
         new_calendar_name = input("Enter the name of the new calendar: ")
         local_timezone = tzlocal.get_localzone()
         new_calendar = {
             'summary': new_calendar_name,
-            'timeZone': local_timezone.zone
+            'timeZone': local_timezone.key  # Use 'key' instead of 'zone'
         }
         created_calendar = service.calendars().insert(body=new_calendar).execute()
         print(f"Created calendar: {created_calendar['id']}")
@@ -111,30 +95,46 @@ def main():
         return chosen_calendar
 
 if __name__ == '__main__':
+    shift_page_url = input("Please enter the URL of the shift page: ").strip()
+    while not shift_page_url:
+        shift_page_url = input("The shift page URL cannot be blank. Please enter the URL of the shift page: ").strip()
+
+    username = input("Please enter your username: ").strip()
+    while not username:
+        username = input("The username cannot be blank. Please enter your username: ").strip()
+
+    password = getpass.getpass("Please enter your password: ").strip()
+    while not password:
+        password = getpass.getpass("The password cannot be blank. Please enter your password: ").strip()
+
+    # Check if credentials.json exists in the script's directory
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    credentials_path = os.path.join(script_dir, "credentials.json")
+    if not os.path.exists(credentials_path):
+        print(f"Error: {credentials_path} does not exist. Please create the file with your credentials.")
+        exit(1)
+
     chosen_calendar = main()
 
-# Download WebDriver and find Chrome path
-driver_path = download_chromedriver()
-chrome_path = find_chrome_path()
+    # Download WebDriver and find Chrome path
+    driver_path = download_chromedriver()
+    chrome_path = find_chrome_path()
 
-# Define script_dir as the directory where the script is located
-script_dir = os.path.dirname(os.path.abspath(__file__))
+    # Define safe destination for config.json
+    safe_destination = os.path.join(script_dir, "config.json")
 
-# Define safe destination for config.json
-safe_destination = os.path.join(script_dir, "config.json")
+    # Save the user inputs and paths to a configuration file
+    config = {
+        "shift_page_url": shift_page_url,
+        "username": username,
+        "password": password,
+        "driver_path": driver_path,
+        "chrome_path": chrome_path,
+        "calendar_id": chosen_calendar['id']
+    }
 
-# Save the user inputs and paths to a configuration file
-config = {
-    "shift_page_url": shift_page_url,
-    "username": username,
-    "password": password,
-    "driver_path": driver_path,
-    "chrome_path": chrome_path,
-    "calendar_id": chosen_calendar['id']
-}
+    # Write the configuration to a file
+    with open(safe_destination, 'w') as config_file:
+        json.dump(config, config_file)
 
-# Write the configuration to a file
-with open(safe_destination, 'w') as config_file:
-    json.dump(config, config_file)
-
-print(f"Configuration saved to {safe_destination}")
+    print(f"Configuration saved to {safe_destination}")
