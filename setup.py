@@ -34,7 +34,7 @@ def find_chrome_path():
     return chrome_path
 
 # Import the required libraries for the rest of the script 
-import pytz
+import p
 import tzlocal
 import pickle
 from googleapiclient.discovery import build

@@ -60,7 +60,7 @@ def get_latest_shift_data(export_dir):
     # Clean up old files if necessary
     if len(files) > 8:
         files.sort(key=os.path.getctime)
-        old_files = files[:-8]
+        old_files = files[:-4]
         for file_path in old_files:
             os.remove(file_path)
             logging.info(f"Deleted old shift file: {file_path}")
